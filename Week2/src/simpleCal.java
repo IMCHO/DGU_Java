@@ -1,6 +1,6 @@
 
 public class simpleCal {
-	static int resultNumber;
+	static int resultNumber;  // 최종 결과를 담을 변수
 	
 	/**
 	* num1과 num2를 합하고 그 결과를 반환한다.
@@ -11,7 +11,7 @@ public class simpleCal {
 	public static int addNumber(int num1, int num2) {
 		resultNumber= num1 + num2;
 	return resultNumber;
-	}
+	}                               // 매개변수 2개를 더한 값 반환
 	
 	/**
 	* num1과 num2를 빼고 그 결과를 반환한다.
@@ -21,8 +21,8 @@ public class simpleCal {
 	*/
 	public static int subNumber(int num1, int num2) {
 		resultNumber= num1 - num2;
-	return resultNumber;
-	}
+	return resultNumber;  
+	}                                // 매개변수 2개를 뺀 값 반환
 	
 	/**
 	* num1과 num2를 곱하고 그 결과를 반환한다.
@@ -33,7 +33,7 @@ public class simpleCal {
 	public static int mulNumber(int num1, int num2) {
 		resultNumber= num1 * num2;
 	return resultNumber;
-	}
+	}                                 // 매개변수 2개를 곱한 값 반환
 	
 	/**
 	* num1과 num2를 나누고 그 결과를 반환한다.
@@ -44,7 +44,7 @@ public class simpleCal {
 	public static int divNumber(int num1, int num2) {
 		resultNumber= num1 / num2;
 	return resultNumber;
-	}
+	}                                 // 매개변수 2개를 나눈 값 반환
 	public static void main(String[] args) {
 	int number;
 	number = addNumber(5, 8);
