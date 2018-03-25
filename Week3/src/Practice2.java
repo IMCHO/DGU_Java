@@ -1,6 +1,6 @@
 public class Practice2 {
 	public static double sum(long n1,long n2) {  // long 매개변수를 2개 받은 후 더한 값 리턴
-		double temp1=n1;
+		double temp1=n1;                         // double형 변수로 묵시적 형변환
 		double temp2=n2;
 		return temp1+temp2;
 	}
