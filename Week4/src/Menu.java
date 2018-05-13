@@ -1,7 +1,7 @@
 import java.util.Scanner;
 
 public class Menu {
-	public static final String MENU_TEXT = "\t\t===메뉴선택===\n" + "데이터 파일 불러오기(O), 문자열 검색(S), 검색결과 파일 출력(P), 프로그램종료(Q)";
+	public static final String MENU_TEXT = "\t\t===메뉴선택===\n" + "데이터 파일 불러오기(O), 문자열 검색(S), 검색결과 파일 출력(P), 수정 후 결과 출력(R), 프로그램종료(Q)";
 
 	public static void startConsoleMenu() { // 콘솔메뉴 출력 메소드
 		Scanner sc = new Scanner(System.in);
@@ -27,6 +27,11 @@ public class Menu {
 			case "p": {
 				System.out.println("저장 할 파일명을 입력하세요. ");
 				Editor.writeFile();
+				break;
+			}
+			case "R":
+			case "r": {
+				Editor.replaceWord();
 				break;
 			}
 			case "Q":
