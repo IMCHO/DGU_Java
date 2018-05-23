@@ -5,12 +5,13 @@ public class Editor {
 	public static int count = 0; // 버퍼 개수를 세기 위한 변수
 	public static String INPUT_PATH;
 	public static String OUTPUT_PATH;
-	public static final int BUFFER_SIZE = 130; // 버퍼사이즈 결정 -> 파일 한 줄당 단어가 130개이므로
-	public static FileInputStream inputStream; // 파일스트림 사용
-	public static BufferedInputStream bufferedInputStream; // 버퍼스트림 사용
+	// public static final int BUFFER_SIZE = 130; // 버퍼사이즈 결정 -> 파일 한 줄당 단어가 130개이므로
+	public static MyBufferedReader bufferedReader; // 버퍼리더 사용
+	public static FileReader fileReader; // 파일리더 사용
 	public static String[] strTemp = new String[100000];
 	public static char space = ' '; // 공백 개수를 세기 위해 필요한 변수
 	public static String result; // 최종 결과를 저장할 변수
+	public static boolean isFileOpen = false; // 열렸는지 안 열렸는지 알려줌
 
 	public static void loadFile() {
 		Scanner sc = new Scanner(System.in);
@@ -21,47 +22,29 @@ public class Editor {
 		while (isCorrectPath) {
 			INPUT_PATH = sc.nextLine();
 			try {
-				inputStream = new FileInputStream(INPUT_PATH); // 입력된 경로값으로 new 할당
+				fileReader = new FileReader(INPUT_PATH); // 입력된 경로값으로 new 할당
 			} catch (Exception e) {
 				System.out.println("잘못된 경로입니다. 다시 입력해주세요!"); // 경로가 존재하지 않을 경우 다시 반복
 				continue;
 			}
 
-			bufferedInputStream = new BufferedInputStream(inputStream, BUFFER_SIZE);
-			byte[] readBuffer = new byte[BUFFER_SIZE]; // 버퍼 사이즈 결정
+			bufferedReader = new MyBufferedReader(fileReader); // MyBufferedReader 객체 사용
+			isFileOpen = true;
+			// byte[] readBuffer = new byte[BUFFER_SIZE]; // 버퍼 사이즈 결정
 
 			try {
-				while (bufferedInputStream.read(readBuffer, 0, readBuffer.length) != -1) { // 버퍼사이즈만큼 파일을 읽어와 저장
-					strTemp[count++] = new String(readBuffer); // 읽어온 버퍼를 스트링으로 변환
+				while ((strTemp[count] = bufferedReader.readLine()) != null) { // 개행문자 제외하고 한줄 한줄 읽어와서 strTemp에 저장
+					count++; // 개수 증가
 				}
 			} catch (IOException e) {
 				// TODO 자동 생성된 catch 블록
 				e.printStackTrace();
 			}
-
-			for (int i = 0; i < count - 1; i++) {
-
-				if (strTemp[i].charAt(strTemp[i].length() - 1) != space && strTemp[i + 1].charAt(0) != space) { // 맨 뒷줄에
-																												// 공백이
-																												// 없는 경우
-																												// 이어지는
-																												// 단어 존재
-																												// & 다음줄
-																												// 첫 글자도
-																												// 공백이
-																												// 아니여야함(수정되었을
-																												// 시 고려)
-					strTemp[i] += strTemp[i + 1].substring(0, strTemp[i + 1].indexOf(space) + 1); // 다음줄로 넘어가서 첫번째
-																									// 공백전까지 불러온 뒤
-																									// 뒤에 붙여줌
-					strTemp[i + 1] = strTemp[i + 1].substring(strTemp[i + 1].indexOf(space) + 1, 130); // 앞 쪽을 떼인 단어
-																										// 제외하고 문장
-																										// 수정
-				}
-			}
-			for (int i = 0; i < count; i++) {
-				strTemp[i] = strTemp[i].replaceAll("\r\n|\n\r|\r|\n", ""); // 개행문자 삭제
-			}
+			arrangeString();
+			/*
+			 * for (int i = 0; i < count; i++) { strTemp[i] =
+			 * strTemp[i].replaceAll("\r\n|\n\r|\r|\n", ""); // 개행문자 삭제 }
+			 */
 			isCorrectPath = false; // 반복문 탈출
 		}
 	}
@@ -88,7 +71,7 @@ public class Editor {
 
 	public static void writeFile() {
 		Scanner in = new Scanner(System.in); // 문자열 입력
-		OUTPUT_PATH = in.nextLine();
+		String OUTPUT_PATH = in.nextLine();
 		File file = new File(OUTPUT_PATH);
 		FileWriter filewriter;
 
@@ -160,8 +143,45 @@ public class Editor {
 				strTemp[i] += (splitStrArr[j] + " "); // 다시 한줄로 합침
 			}
 		}
+		arrangeString_130(); // 스트링 130 사이즈로 재배치
+		printToFile(); // 파일로 출력
+	}
 
-		// 각 스트링을 130사이즈에 맞게 재조정 시작
+	public static void printToFile() {
+		Scanner in = new Scanner(System.in);
+		System.out.println("출력할 파일경로를 입력하세요:");
+		OUTPUT_PATH = in.nextLine();
+		byte receive[];
+		FileOutputStream file;
+
+		try {
+			file = new FileOutputStream(OUTPUT_PATH); // 파일 생성경로 설정
+			BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(file);
+
+			for (int i = 0; i < count; i++) {
+				receive = strTemp[i].getBytes(); // 스트링을 바이트로 변환
+				bufferedOutputStream.write(receive); // write 해줌
+			}
+			bufferedOutputStream.flush(); // 남은 데이터 모두 write
+
+			file.close();
+			bufferedOutputStream.close();
+		} catch (IOException e) {
+			// TODO 자동 생성된 catch 블록
+			e.printStackTrace();
+		}
+		System.out.println("파일출력이 완료되었습니다.");
+	}
+
+	public static boolean isExistFile(String str) { // 파일이 존재하는지 확인해주는 메소드
+		File file = new File(str);
+		if (file.exists())
+			return true;
+		else
+			return false;
+	}
+
+	public static void arrangeString_130() { // 각 스트링을 130사이즈에 맞게 재조정 시작, 개행문자도 붙여줌
 		String temp; // 길이를 초과하는 경우 그 부분만 저장할 변수
 		int remain; // 미만인 경우 부족한 길이를 저장할 변수
 		for (int i = 0; i < count - 1; i++) {
@@ -183,40 +203,94 @@ public class Editor {
 			strTemp[count - 1] = strTemp[count - 1].substring(0, 128) + "\r\n";
 			strTemp[count++] = temp; // 초과된부분은 새로 strTemp에 할당
 		}
+	}
+
+	public static void arrangeString() { // 글자 수에 상관없이 재배치, 개행문자 없음
+		for (int i = 0; i < count - 1; i++) {
+
+			if (strTemp[i].charAt(strTemp[i].length() - 1) != space && strTemp[i + 1].charAt(0) != space) {
+				// 맨 뒷줄에 공백이 없는 경우 이어지는 단어가 다음줄에 존재
+				// & 다음줄 첫 글자도 공백이 아니여야함(수정되었을 시 고려)
+				strTemp[i] += strTemp[i + 1].substring(0, strTemp[i + 1].indexOf(space) + 1);
+				// 다음줄로 넘어가서 첫번째 공백전까지 불러온 뒤 원래 줄 뒤에 붙여줌
+				strTemp[i + 1] = strTemp[i + 1].substring(strTemp[i + 1].indexOf(space) + 1, 128);
+				// 다음줄에서 앞 쪽을 떼인 단어 제외한 상태로 문장 수정
+			}
+		}
+	}
+}
+
+class MyBufferedReader extends BufferedReader {
+	FileReader fileReader;
+
+	public MyBufferedReader(FileReader fileReader) { // 생성자
+		super(fileReader);
+		this.fileReader = fileReader;
+	}
+
+	@Override
+	public String readLine() throws IOException { // 오버라이딩 사용
+		return super.readLine();
+	}
+
+	public MyBufferedReader resetToFisrt() {
+		try {
+			fileReader = new FileReader(Editor.OUTPUT_PATH); // 방금 출력한 경로를 입력 경로로 넣음
+		} catch (FileNotFoundException e) {
+			// TODO 자동 생성된 catch 블록
+			e.printStackTrace();
+		}
+		Editor.count = 0; // count 초기화
+		Editor.strTemp = new String[100000]; // strTemp 초기화
+		Editor.result = ""; // result 초기화
+		return new MyBufferedReader(fileReader);
+	}
+}
+
+class ImprovedEditor extends Editor {
+	public static void appendString(String str, int line) {
+		arrangeString_130(); // 재정렬
+		strTemp[line - 1] = strTemp[line - 1].substring(0, 128) + str + "\r\n";
+		// 개행문자 전까지 잘라내고 붙일 문자열을 붙인 뒤 개행문자 다시 붙여줌
 		printToFile(); // 파일로 출력
 	}
 
-	public static void printToFile() {
-		Scanner in = new Scanner(System.in);
-		System.out.println("출력할 파일경로를 입력하세요:");
-		OUTPUT_PATH = in.nextLine();
-		byte receive[];
-		FileOutputStream file;
+	public static void searchString(String word, int[] line) { // 오버로딩 사용
+
+		if (!isFileOpen) {
+			return;
+		} else {
+			bufferedReader = bufferedReader.resetToFisrt(); // 열었던 파일을 다시 처음부터 엶
+		}
 
 		try {
-			file = new FileOutputStream(OUTPUT_PATH); // 파일 생성경로 설정
-			BufferedOutputStream b_writer = new BufferedOutputStream(file);
-
-			for (int i = 0; i < count; i++) {
-				receive = strTemp[i].getBytes(); // 스트링을 바이트로 변환
-				b_writer.write(receive); // write 해줌
+			while ((strTemp[count] = bufferedReader.readLine()) != null) { // 개행문자 제외하고 한줄 한줄 읽어와서 strTemp에 저장
+				count++; // 개수 증가
 			}
-			b_writer.flush(); // 남은 데이터 모두 write
-
-			file.close();
-			b_writer.close();
 		} catch (IOException e) {
 			// TODO 자동 생성된 catch 블록
 			e.printStackTrace();
 		}
-		System.out.println("파일출력이 완료되었습니다.");
-	}
 
-	public static boolean isExistFile(String str) { // 파일이 존재하는지 확인해주는 메소드
-		File file = new File(str);
-		if (file.exists())
-			return true;
-		else
-			return false;
+		for (int i = 0; line[i]!=0; i++) { // 맨뒤에 저장된 0은 제외해
+			int length; // 몇번째 단어인지 확인하기 위해
+			if (strTemp[line[i] - 1].substring(0, 1) != " ") {
+				length = 0; // 맨 앞 단어가 공백이 아니면 0부터시작
+			} else {
+				length = 1; // 맨 앞 단어가 공백이면 1부터 시작 -> 왜냐하면 공백 기준으로 문자열을 자를 것이기 때문에 미리 고려해 놓음
+			}
+			
+			String splitStrArr[] = strTemp[line[i] - 1].split(" "); // 한 줄을 공백 기준으로 나눔 -> 단어마다 쪼개짐
+			for (int j = 0; j < splitStrArr.length; j++) {
+				if (word.matches(splitStrArr[j])) { // 검색단어와 저장되어있는 단어와 같은지 비교
+					result += line[i] + "번째 줄의 " + (length + 1) + "번째 단어!\r\n";
+				} else if (j == splitStrArr.length - 1) {
+					result += line[i] + "번째 줄에는 " + word + "를 찾을 수 없습니다.\r\n";
+				}
+				length += (splitStrArr[j].length() + 1); // 여태까지 참조한 문자열의 길이를 계속 더해줘서 위치 표현할 떄 사용
+			}
+		}
+		System.out.println("저장 할 파일명을 입력하세요. ");
+		writeFile();
 	}
 }
