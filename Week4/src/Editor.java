@@ -1,6 +1,8 @@
 import java.io.*; // input, output 기능을 쓰기 위한 과정
 import java.util.Scanner; // 검색할 스트링을 입력 받기위해 필요한 import
 
+import edu.dongguk.cse.pl.reportwritter.ReportWriter; // Jar 파일을 사용하기 위해
+
 public class Editor {
 	public static int count = 0; // 버퍼 개수를 세기 위한 변수
 	public static String INPUT_PATH;
@@ -50,6 +52,27 @@ public class Editor {
 	}
 
 	public static void searchString() {
+		{
+			CReport report = new CReport();  // 12주차 과제를 위한 영역
+			ReportWriter reportWriter = new ReportWriter();
+			int total = 5;
+
+			report.setFileName("C:\\out.txt");
+			report.setTotalSearchedNo(total);
+
+			for (int i = 0; i < total; i++) {
+				CSearchItem item = new CSearchItem();
+				item.setIndexNo(i * 2 + 1);
+				item.setLineNo(i * 4 + 2);
+				report.addSearchItm(item);
+			}
+			try {
+				reportWriter.makeReport(report);
+			} catch (IOException e) {
+				// TODO 자동 생성된 catch 블록
+				e.printStackTrace();
+			}
+		}
 		String input = ""; // 입력 받을 문자열
 		Scanner in = new Scanner(System.in); // 문자열 입력
 		input = in.next(); // 입력한 문자열 input에 할당
@@ -272,14 +295,14 @@ class ImprovedEditor extends Editor {
 			e.printStackTrace();
 		}
 
-		for (int i = 0; line[i]!=0; i++) { // 맨뒤에 저장된 0은 제외해
+		for (int i = 0; line[i] != 0; i++) { // 맨뒤에 저장된 0은 제외해
 			int length; // 몇번째 단어인지 확인하기 위해
 			if (strTemp[line[i] - 1].substring(0, 1) != " ") {
 				length = 0; // 맨 앞 단어가 공백이 아니면 0부터시작
 			} else {
 				length = 1; // 맨 앞 단어가 공백이면 1부터 시작 -> 왜냐하면 공백 기준으로 문자열을 자를 것이기 때문에 미리 고려해 놓음
 			}
-			
+
 			String splitStrArr[] = strTemp[line[i] - 1].split(" "); // 한 줄을 공백 기준으로 나눔 -> 단어마다 쪼개짐
 			for (int j = 0; j < splitStrArr.length; j++) {
 				if (word.matches(splitStrArr[j])) { // 검색단어와 저장되어있는 단어와 같은지 비교
