@@ -3,7 +3,7 @@ import java.util.Scanner; // 검색할 스트링을 입력 받기위해 필요한 import
 
 import edu.dongguk.cse.pl.reportwritter.ReportWriter; // Jar 파일을 사용하기 위해
 
-public class Editor {
+public class Editor extends Thread {
 	public static int count = 0; // 버퍼 개수를 세기 위한 변수
 	public static String INPUT_PATH;
 	public static String OUTPUT_PATH;
@@ -14,6 +14,30 @@ public class Editor {
 	public static char space = ' '; // 공백 개수를 세기 위해 필요한 변수
 	public static String result; // 최종 결과를 저장할 변수
 	public static boolean isFileOpen = false; // 열렸는지 안 열렸는지 알려줌
+
+	public void run() {
+		System.out.println("검색할 단어를 입력하세요. ");
+		String input = ""; // 입력 받을 문자열
+		Scanner in = new Scanner(System.in); // 문자열 입력
+		input = in.next(); // 입력한 문자열 input에 할당
+		int word_count = 0; // 단어 개수를 세기 위한 변수
+		String str = ""; // 검색결과 저장
+		str = "\r\n" + INPUT_PATH + " 파일에서 " + input + "의 검색 결과는 다음과 같습니다.\r\n"; // 결과를 저장해 줄 변수
+
+		for (int i = 0; i < count; i++) {
+			String splitStrArr[] = strTemp[i].split(" "); // 한 줄을 공백 기준으로 나눔 -> 단어마다 쪼개짐
+			for (int j = 0; j < splitStrArr.length; j++) {
+				if (input.matches(splitStrArr[j])) {
+					str += (i + 1) + "번째 줄 " + (j + 1) + "번째\r\n"; // 검색단어와 저장되어있는 단어와 같은지 비교
+					word_count++;
+				}
+			}
+			//System.out.format("%.2f ", (float) i / (float) count * 100.0);
+		}
+		str += "이상 검색결과로 총 " + word_count + "개의 검색이 완료되었습니다.\r\n";
+		result = str; // 추후에 사용하기 위해 전역변수에 저장
+		System.out.println(str); // 결과 출력
+	}
 
 	public static void loadFile() {
 		Scanner sc = new Scanner(System.in);
@@ -51,9 +75,11 @@ public class Editor {
 		}
 	}
 
-	public static void searchString() {
+	public static synchronized void searchString() {
+		Editor editor = new Editor();
+		editor.start();
 		{
-			CReport report = new CReport();  // 12주차 과제를 위한 영역
+			CReport report = new CReport(); // 12주차 과제를 위한 영역
 			ReportWriter reportWriter = new ReportWriter();
 			int total = 5;
 
@@ -73,23 +99,7 @@ public class Editor {
 				e.printStackTrace();
 			}
 		}
-		String input = ""; // 입력 받을 문자열
-		Scanner in = new Scanner(System.in); // 문자열 입력
-		input = in.next(); // 입력한 문자열 input에 할당
-		int word_count = 0; // 단어 개수를 세기 위한 변수
-		result = "\r\n" + INPUT_PATH + " 파일에서 " + input + "의 검색 결과는 다음과 같습니다.\r\n"; // 결과를 저장해 줄 변수
 
-		for (int i = 0; i < count; i++) {
-			String splitStrArr[] = strTemp[i].split(" "); // 한 줄을 공백 기준으로 나눔 -> 단어마다 쪼개짐
-			for (int j = 0; j < splitStrArr.length; j++) {
-				if (input.matches(splitStrArr[j])) {
-					result += (i + 1) + "번째 줄 " + (j + 1) + "번째\r\n"; // 검색단어와 저장되어있는 단어와 같은지 비교
-					word_count++;
-				}
-			}
-		}
-		result += "이상 검색결과로 총 " + word_count + "개의 검색이 완료되었습니다.\r\n";
-		System.out.println(result); // 결과 출력
 	}
 
 	public static void writeFile() {

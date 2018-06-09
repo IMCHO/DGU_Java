@@ -19,7 +19,6 @@ public class Menu {
 			}
 			case "S":
 			case "s": {
-				System.out.println("검색할 단어를 입력하세요. ");
 				Editor.searchString();
 				break;
 			}
