@@ -16,27 +16,7 @@ public class Editor extends Thread {
 	public static boolean isFileOpen = false; // 열렸는지 안 열렸는지 알려줌
 
 	public void run() {
-		System.out.println("검색할 단어를 입력하세요. ");
-		String input = ""; // 입력 받을 문자열
-		Scanner in = new Scanner(System.in); // 문자열 입력
-		input = in.next(); // 입력한 문자열 input에 할당
-		int word_count = 0; // 단어 개수를 세기 위한 변수
-		String str = ""; // 검색결과 저장
-		str = "\r\n" + INPUT_PATH + " 파일에서 " + input + "의 검색 결과는 다음과 같습니다.\r\n"; // 결과를 저장해 줄 변수
-
-		for (int i = 0; i < count; i++) {
-			String splitStrArr[] = strTemp[i].split(" "); // 한 줄을 공백 기준으로 나눔 -> 단어마다 쪼개짐
-			for (int j = 0; j < splitStrArr.length; j++) {
-				if (input.matches(splitStrArr[j])) {
-					str += (i + 1) + "번째 줄 " + (j + 1) + "번째\r\n"; // 검색단어와 저장되어있는 단어와 같은지 비교
-					word_count++;
-				}
-			}
-			//System.out.format("%.2f ", (float) i / (float) count * 100.0);
-		}
-		str += "이상 검색결과로 총 " + word_count + "개의 검색이 완료되었습니다.\r\n";
-		result = str; // 추후에 사용하기 위해 전역변수에 저장
-		System.out.println(str); // 결과 출력
+		
 	}
 
 	public static void loadFile() {
@@ -76,8 +56,31 @@ public class Editor extends Thread {
 	}
 
 	public static synchronized void searchString() {
-		Editor editor = new Editor();
-		editor.start();
+		//Editor editor = new Editor();
+		//editor.start();
+		System.out.println("검색할 단어를 입력하세요. ");
+		String input = ""; // 입력 받을 문자열
+		Scanner in = new Scanner(System.in); // 문자열 입력
+		input = in.next(); // 입력한 문자열 input에 할당
+		int word_count = 0; // 단어 개수를 세기 위한 변수
+		String str = ""; // 검색결과 저장
+		str = "\r\n" + INPUT_PATH + " 파일에서 " + input + "의 검색 결과는 다음과 같습니다.\r\n"; // 결과를 저장해 줄 변수
+
+		for (int i = 0; i < count; i++) {
+			String splitStrArr[] = strTemp[i].split(" "); // 한 줄을 공백 기준으로 나눔 -> 단어마다 쪼개짐
+			for (int j = 0; j < splitStrArr.length; j++) {
+				if (input.matches(splitStrArr[j])) {
+					str += (i + 1) + "번째 줄 " + (j + 1) + "번째\r\n"; // 검색단어와 저장되어있는 단어와 같은지 비교
+					word_count++;
+				}
+			}
+			//System.out.format("%.2f ", (float) i / (float) count * 100.0);
+		}
+		str += "이상 검색결과로 총 " + word_count + "개의 검색이 완료되었습니다.\r\n";
+		result = str; // 추후에 사용하기 위해 전역변수에 저장
+		System.out.println(str); // 결과 출력
+		
+		insertWord(4,8,"test");
 		{
 			CReport report = new CReport(); // 12주차 과제를 위한 영역
 			ReportWriter reportWriter = new ReportWriter();
@@ -206,6 +209,12 @@ public class Editor extends Thread {
 		System.out.println("파일출력이 완료되었습니다.");
 	}
 
+	public static void insertWord(int row,int col,String str) { // 단어 삽입 메소드
+		StringBuilder strBuilder=new StringBuilder(strTemp[row-1]); // 배열이므로 row 값에 1을 빼줘야 알맞은 행에 대한 수정이 가능
+		strBuilder.insert(col-1, str); // col부터 삽입된 문자가 들어가야 하므로 col에 1을 빼준 값을 대입
+		strTemp[row-1]=strBuilder.toString(); // 다시 string 변수로 변환 한 뒤 대입
+	}
+	
 	public static boolean isExistFile(String str) { // 파일이 존재하는지 확인해주는 메소드
 		File file = new File(str);
 		if (file.exists())
