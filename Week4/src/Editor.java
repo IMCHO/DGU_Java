@@ -19,19 +19,18 @@ public class Editor extends Thread {
 
 	}
 
-	public static void loadFile() {
-		Scanner sc = new Scanner(System.in);
+	public static boolean loadFile(String path) { // 파일 열기 여부를 알리기 위해 반환형을 boolean으로 변경
+		// Scanner sc = new Scanner(System.in);
 		boolean isCorrectPath = true; // 반복조건 플래그
 		count = 0; // count 초기화
 		strTemp = new String[100000]; // strTemp 초기화
 
 		while (isCorrectPath) {
-			INPUT_PATH = sc.nextLine();
+			// INPUT_PATH = sc.nextLine();
 			try {
-				fileReader = new FileReader(INPUT_PATH); // 입력된 경로값으로 new 할당
+				fileReader = new FileReader(path); // 입력된 경로값으로 new 할당
 			} catch (Exception e) {
-				System.out.println("잘못된 경로입니다. 다시 입력해주세요!"); // 경로가 존재하지 않을 경우 다시 반복
-				continue;
+				return false;
 			}
 
 			bufferedReader = new MyBufferedReader(fileReader); // MyBufferedReader 객체 사용
@@ -53,7 +52,8 @@ public class Editor extends Thread {
 			 */
 			isCorrectPath = false; // 반복문 탈출
 		}
-		//sc.close();
+		// sc.close();
+		return true;
 	}
 
 	public static synchronized void searchString() {
@@ -95,7 +95,7 @@ public class Editor extends Thread {
 			// TODO 자동 생성된 catch 블록
 			e.printStackTrace();
 		}
-		//in.close();
+		// in.close();
 	}
 
 	public static void writeFile() {
@@ -153,7 +153,7 @@ public class Editor extends Thread {
 				e.printStackTrace();
 			}
 		}
-		//in.close();
+		// in.close();
 	}
 
 	public static void replaceWord() {
@@ -175,7 +175,7 @@ public class Editor extends Thread {
 		}
 		arrangeString_130(); // 스트링 130 사이즈로 재배치
 		printToFile(); // 파일로 출력
-		//in.close();
+		// in.close();
 	}
 
 	public static void printToFile() {
@@ -202,7 +202,7 @@ public class Editor extends Thread {
 			e.printStackTrace();
 		}
 		System.out.println("파일출력이 완료되었습니다.");
-		//in.close();
+		// in.close();
 	}
 
 	public static void insertWord(int row, int col, String str) { // 단어 삽입 메소드
