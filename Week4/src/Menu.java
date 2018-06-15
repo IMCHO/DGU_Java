@@ -21,8 +21,10 @@ public class Menu implements ActionListener {
 
 	MyFrame myFrame = new MyFrame("CSE2019-01 조인택 2014112103");
 	JButton btn_search = new JButton("검색");
+	JButton btn_change = new JButton("변경");
+	JButton btn_load = new JButton("열기");
 	JButton btn_output = new JButton("결과출력");
-	JButton btn_insert = new JButton("추가"); // 버튼을 위한 변수
+	JButton btn_insert = new JButton("삽입"); // 버튼을 위한 변수
 
 	JMenuBar myMenu = new JMenuBar();
 	JMenu file = new JMenu("파일");
@@ -31,6 +33,7 @@ public class Menu implements ActionListener {
 	JMenuItem item_print = new JMenuItem("출력");
 	JMenuItem item_search = new JMenuItem("검색");
 	JMenuItem item_change = new JMenuItem("변환");
+	JMenuItem item_insert = new JMenuItem("삽입");
 
 	JTextField tf_search = new JTextField(8);
 	JTextField tf_change = new JTextField(8);
@@ -52,22 +55,135 @@ public class Menu implements ActionListener {
 	JList list = new JList();
 	JScrollPane scroller = new JScrollPane(list); // 검색결과를 출력하기 위한 스크롤 변수
 
+	public class SearchThread extends Thread{
+		public synchronized void run() {
+			Editor.searchString(tf_search.getText());
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				// TODO 자동 생성된 catch 블록
+				e.printStackTrace();
+			}
+			strList.clear(); // 그 전 내용 삭제
+			for (int i = 0; i < Editor.strArrList.size(); i++) // 내용을 출력할 스트링을 담은 배열 사용
+			{
+				strList.add(Editor.strArrList.get(i));
+			}
+			list.setListData(strList);
+			//btn_search.setEnabled(false);
+		}
+	}
 	public void actionPerformed(ActionEvent e) {
 
 		if (e.getSource() == item_open) { // 메뉴의 열기 선택한 경우
-			openFile();
+			openFile1();
+		} else if (e.getSource() == btn_load) {
+			openFile2();
+		} else if (e.getSource() == item_search) {
+			Search1();
+		} else if (e.getSource() == btn_search) {
+			SearchThread thread=new SearchThread();
+			thread.start();
+		} else if (e.getSource() == item_print) {
+			Print1();
+		} else if (e.getSource() == btn_output) {
+			Print2();
+		} else if (e.getSource() == item_change) {
+			Change1();
+		} else if (e.getSource() == btn_change) {
+			Change2();
+		} else if (e.getSource() == item_insert) {
+			Insert1();
+		} else if (e.getSource() == btn_insert) {
+			Insert2();
 		}
 
 	}
 
-	public void openFile() {
-		if (Editor.loadFile(tf_input.getText())) { // 경로를 미리 입력한 후 열기 메뉴 클릭
+	public void openFile1() { // 메뉴 선택
+		btn_load.setEnabled(true); // 버튼 활성화
+		btn_load.addActionListener(this);
+	}
+
+	public void openFile2() { // 경로에 따라 파일 로드
+		strList.clear(); // 그 전 내용 삭제
+		if (Editor.loadFile(tf_input.getText())) {
 			strList.add("성공적으로 열었습니다!");
 			list.setListData(strList);
 		} else {
 			strList.add("재입력 해주세요!");
 			list.setListData(strList);
 		}
+		btn_load.setEnabled(false); // 버튼 비활성화
+	}
+
+	public void Search1() { // 메뉴에서 선택
+		btn_search.setEnabled(true);
+		btn_search.addActionListener(this);
+	}
+
+	public void Search2() { // 입력된 단어에 따라 검색
+		Editor.searchString(tf_search.getText());
+		strList.clear(); // 그 전 내용 삭제
+		for (int i = 0; i < Editor.strArrList.size(); i++) // 내용을 출력할 스트링을 담은 배열 사용
+		{
+			strList.add(Editor.strArrList.get(i));
+		}
+		list.setListData(strList);
+		btn_search.setEnabled(false);
+	}
+
+	public void Print1() { // 메뉴에서 선택
+		btn_output.setEnabled(true);
+		btn_output.addActionListener(this);
+	}
+
+	public void Print2() { // 입력된 경로에 따라 파일 출력
+		strList.clear(); // 그 전 내용 삭제
+		if (Editor.writeFile(tf_output.getText())) {
+			strList.add("성공적으로 출력했습니다!");
+			list.setListData(strList);
+		} else {
+			strList.add("재입력 해주세요!");
+			list.setListData(strList);
+		}
+		btn_output.setEnabled(false);
+	}
+
+	public void Change1() {
+		btn_change.setEnabled(true);
+		btn_change.addActionListener(this);
+	}
+
+	public void Change2() {
+		strList.clear(); // 그 전 내용 삭제
+		if (Editor.replaceWord(tf_search.getText(),tf_change.getText(),tf_output.getText())) { 
+			// 검색단어, 변경단어, 출력 경로 입력 후 변경 버튼 누르기
+			strList.add("성공적으로 출력했습니다!");
+			list.setListData(strList);
+		} else {
+			strList.add("재입력 해주세요!");
+			list.setListData(strList);
+		}
+		btn_change.setEnabled(false);
+	}
+
+	public void Insert1() {
+		btn_insert.setEnabled(true);
+		btn_insert.addActionListener(this);
+	}
+
+	public void Insert2() {
+		strList.clear(); // 그 전 내용 삭제
+		if (Editor.insertWord(tf_row.getText(), tf_col.getText(), tf_insert.getText(),tf_output.getText())) { 
+			// 행, 열, 출력 경로 입력 후 삽입 버튼 누르기
+			strList.add("성공적으로 출력했습니다!");
+			list.setListData(strList);
+		} else {
+			strList.add("재입력 해주세요!");
+			list.setListData(strList);
+		}
+		btn_insert.setEnabled(false);
 	}
 
 	public void startConsoleMenu() { // GUI 출력 메소드
@@ -76,6 +192,7 @@ public class Menu implements ActionListener {
 		file.add(item_print); // 파일 메뉴 추가
 		tool.add(item_search);
 		tool.add(item_change); // 도구 메뉴 추가
+		tool.add(item_insert);
 		myMenu.add(file);
 		myMenu.add(tool); // 2개 메뉴를 메뉴바에 추가
 		myFrame.setJMenuBar(myMenu); // 메뉴바를 프레임에 추가
@@ -88,8 +205,17 @@ public class Menu implements ActionListener {
 		myFrame.add(btn_search);
 		myFrame.add(btn_output);
 		myFrame.add(btn_insert);
-		btn_search.setBounds(300, 10, 100, 100);
+		myFrame.add(btn_load);
+		myFrame.add(btn_change);
+		btn_search.setEnabled(false);
+		btn_output.setEnabled(false);
+		btn_load.setEnabled(false);
+		btn_change.setEnabled(false);
+		btn_insert.setEnabled(false);
+		btn_search.setBounds(300, 10, 100, 50);
 		btn_output.setBounds(600, 450, 100, 50);
+		btn_load.setBounds(370, 120, 60, 25);
+		btn_change.setBounds(300, 60, 100, 50);
 		btn_insert.setBounds(600, 10, 100, 100); // 버튼 설정
 
 		myFrame.add(tf_search);
@@ -128,6 +254,10 @@ public class Menu implements ActionListener {
 		myFrame.add(scroller); // 스크롤 설정
 
 		item_open.addActionListener(this);
+		item_search.addActionListener(this);
+		item_print.addActionListener(this);
+		item_change.addActionListener(this);
+		item_insert.addActionListener(this);
 		/*
 		 * Scanner sc = new Scanner(System.in); String findWord; boolean isExitProgram =
 		 * false; // 프로그램 종료 플래그 while (!isExitProgram) { System.out.println(MENU_TEXT);
