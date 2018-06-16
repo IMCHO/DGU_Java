@@ -51,7 +51,6 @@ public class Editor extends Thread {
 			// TODO 자동 생성된 catch 블록
 			e.printStackTrace();
 		}
-		arrangeString();
 
 		/*
 		 * for (int i = 0; i < count; i++) { strTemp[i]+="/r/n"; //isCorrectPath =
@@ -69,6 +68,7 @@ public class Editor extends Thread {
 		// String input = ""; // 입력 받을 문자열
 		// Scanner in = new Scanner(System.in); // 문자열 입력
 		// input = in.next(); // 입력한 문자열 input에 할당
+		arrangeString();
 		if (report.getSearchList() != null)
 			report.getSearchList().clear(); // 출력 결과가 중복되지 않게 하기위해
 		word_count = 0;
@@ -135,16 +135,20 @@ public class Editor extends Thread {
 		 * System.out.println("교체할 단어를 입력해주세요:"); String replaceStr = in.nextLine(); //
 		 * 바꿀 단어
 		 */
-
+		arrangeString(); // 온전한 라인을 만든 뒤 변환 기능을 수행해야함
 		for (int i = 0; i < count; i++) {
+			//boolean isSpace=false;
+			//if(strTemp[strTemp[i].length()-1]==" ") isSpace=true;
 			String splitStrArr[] = strTemp[i].split(" "); // 한 줄을 공백 기준으로 나눔 -> 단어마다 쪼개짐
 			strTemp[i] = ""; // 변경된 값을 담기위해 초기화
 			for (int j = 0; j < splitStrArr.length; j++) {
 				if (searchWord.matches(splitStrArr[j])) {
 					splitStrArr[j] = changeWord; // 단어 바꿔줌
 				}
+				if(splitStrArr[j].matches("")) continue; // 맨앞이 공백인 경우 차후 문자열 수정에 문제가 생기므로 없애줘야 함
 				strTemp[i] += (splitStrArr[j] + " "); // 다시 한줄로 합침
 			}
+			//if(!isSpace) strTemp[strTemp[i].length()-1]="";
 		}
 		arrangeString_130(); // 스트링 130 사이즈로 재배치
 		if (printToFile(path)) { // 파일로 출력
@@ -186,7 +190,10 @@ public class Editor extends Thread {
 	}
 
 	public static boolean insertWord(String row, String col, String str, String path) { // 단어 삽입 메소드
-		arrangeString();
+		//arrangeString();
+		for (int i = 0; i < count; i++) { // 개행문자가 없는 상태여야 제대로 돌아감
+			strTemp[i] = strTemp[i].replaceAll("\r\n", "");
+		}
 		StringBuilder strBuilder = new StringBuilder(strTemp[Integer.parseInt(row) - 1]); // 배열이므로 row 값에 1을 빼줘야 알맞은 행에
 																							// 대한 수정이 가능
 		strBuilder.insert(Integer.parseInt(col) - 1, str); // col부터 삽입된 문자가 들어가야 하므로 col에 1을 빼준 값을 대입
@@ -211,7 +218,7 @@ public class Editor extends Thread {
 		String temp; // 길이를 초과하는 경우 그 부분만 저장할 변수
 		int remain; // 미만인 경우 부족한 길이를 저장할 변수
 		for (int i = 0; i < count - 1; i++) {
-			if (strTemp[i].length() > 128) { // 길이가 128을 넘는 경우 -> 128인 이유는 개행문자 "\r\n"을 제외해야 하므로
+			if (strTemp[i].length() > 128) { // 128이 기준인 이유는 나중에 개행문자를 더해주어야 하기 때문
 				temp = strTemp[i].substring(128); // 128~ 의 스트링 떼어옴
 				strTemp[i] = strTemp[i].substring(0, 128) + "\r\n"; // 0~127 스트링으로 바꾸고 뒤에 개행문자 붙여줌
 				strTemp[i + 1] = temp + strTemp[i + 1]; // 초과된 부분인 temp를 그 다음 라인 앞에 붙여줌
@@ -224,7 +231,7 @@ public class Editor extends Thread {
 				strTemp[i] += "\r\n"; // 길이가 딱 128이면 개행문자만 붙여줌
 			}
 		}
-		if (strTemp[count - 1].length() > 128) { // 마지막라인의 경우 처리가 안되어있음 -> 128을 초과하는 경우만 생각해주면됨
+		while (strTemp[count - 1].length() > 128) { // 마지막라인의 경우 처리가 안되어있음 -> 128을 초과하는 경우만 생각해주면됨 -> 루프처리를 계속 해줌
 			temp = strTemp[count - 1].substring(128);
 			strTemp[count - 1] = strTemp[count - 1].substring(0, 128) + "\r\n";
 			strTemp[count++] = temp; // 초과된부분은 새로 strTemp에 할당
@@ -232,8 +239,8 @@ public class Editor extends Thread {
 	}
 
 	public static void arrangeString() { // 글자 수에 상관없이 재배치, 개행문자 없음
-		for(int i=0;i<count;i++) { // 개행문자가 없는 상태여야 제대로 돌아감
-			strTemp[i]=strTemp[i].replaceAll("\r\n", "");
+		for (int i = 0; i < count; i++) { // 개행문자가 없는 상태여야 제대로 돌아감
+			strTemp[i] = strTemp[i].replaceAll("\r\n", "");
 		}
 		for (int i = 0; i < count - 1; i++) {
 
@@ -241,8 +248,8 @@ public class Editor extends Thread {
 				// 맨 뒷줄에 공백이 없는 경우 이어지는 단어가 다음줄에 존재
 				// & 다음줄 첫 글자도 공백이 아니여야함(수정되었을 시 고려)
 				strTemp[i] += strTemp[i + 1].substring(0, strTemp[i + 1].indexOf(space) + 1);
-				// 다음줄로 넘어가서 첫번째 공백전까지 불러온 뒤 원래 줄 뒤에 붙여줌
-				strTemp[i + 1] = strTemp[i + 1].substring(strTemp[i + 1].indexOf(space) + 1, strTemp[i+1].length());
+				// 다음줄로 넘어가서 첫번째 공백까지 불러온 뒤 원래 줄 뒤에 붙여줌
+				strTemp[i + 1] = strTemp[i + 1].substring(strTemp[i + 1].indexOf(space) + 1, strTemp[i + 1].length());
 				// 다음줄에서 앞 쪽을 떼인 단어 제외한 상태로 문장 수정
 			}
 		}

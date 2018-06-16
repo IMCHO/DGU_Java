@@ -23,17 +23,17 @@ public class Menu implements ActionListener {
 	JButton btn_search = new JButton("검색");
 	JButton btn_change = new JButton("변경");
 	JButton btn_load = new JButton("열기");
-	JButton btn_output = new JButton("결과출력");
+	JButton btn_output = new JButton("결과 출력");
 	JButton btn_insert = new JButton("삽입"); // 버튼을 위한 변수
 
 	JMenuBar myMenu = new JMenuBar();
 	JMenu file = new JMenu("파일");
 	JMenu tool = new JMenu("도구");
 	JMenuItem item_open = new JMenuItem("열기");
-	JMenuItem item_print = new JMenuItem("출력");
+	JMenuItem item_print = new JMenuItem("검색 결과 출력");
 	JMenuItem item_search = new JMenuItem("검색");
-	JMenuItem item_change = new JMenuItem("변환");
-	JMenuItem item_insert = new JMenuItem("삽입");
+	JMenuItem item_change = new JMenuItem("변환 후 파일 출력");
+	JMenuItem item_insert = new JMenuItem("삽입 후 파일 출력");
 
 	JTextField tf_search = new JTextField(8);
 	JTextField tf_change = new JTextField(8);
@@ -55,24 +55,25 @@ public class Menu implements ActionListener {
 	JList list = new JList();
 	JScrollPane scroller = new JScrollPane(list); // 검색결과를 출력하기 위한 스크롤 변수
 
-	public class SearchThread extends Thread{
+	public class SearchThread extends Thread {
 		public synchronized void run() {
-			Editor.searchString(tf_search.getText());
 			try {
 				Thread.sleep(2000);
 			} catch (InterruptedException e) {
 				// TODO 자동 생성된 catch 블록
 				e.printStackTrace();
 			}
+			Editor.searchString(tf_search.getText());
 			strList.clear(); // 그 전 내용 삭제
 			for (int i = 0; i < Editor.strArrList.size(); i++) // 내용을 출력할 스트링을 담은 배열 사용
 			{
 				strList.add(Editor.strArrList.get(i));
 			}
 			list.setListData(strList);
-			//btn_search.setEnabled(false);
+			// btn_search.setEnabled(false);
 		}
 	}
+
 	public void actionPerformed(ActionEvent e) {
 
 		if (e.getSource() == item_open) { // 메뉴의 열기 선택한 경우
@@ -82,7 +83,7 @@ public class Menu implements ActionListener {
 		} else if (e.getSource() == item_search) {
 			Search1();
 		} else if (e.getSource() == btn_search) {
-			SearchThread thread=new SearchThread();
+			SearchThread thread = new SearchThread();
 			thread.start();
 		} else if (e.getSource() == item_print) {
 			Print1();
@@ -141,7 +142,7 @@ public class Menu implements ActionListener {
 	public void Print2() { // 입력된 경로에 따라 파일 출력
 		strList.clear(); // 그 전 내용 삭제
 		if (Editor.writeFile(tf_output.getText())) {
-			strList.add("성공적으로 출력했습니다!");
+			strList.add("검색 내용을 성공적으로 출력했습니다!");
 			list.setListData(strList);
 		} else {
 			strList.add("재입력 해주세요!");
@@ -157,9 +158,9 @@ public class Menu implements ActionListener {
 
 	public void Change2() {
 		strList.clear(); // 그 전 내용 삭제
-		if (Editor.replaceWord(tf_search.getText(),tf_change.getText(),tf_output.getText())) { 
+		if (Editor.replaceWord(tf_search.getText(), tf_change.getText(), tf_output.getText())) {
 			// 검색단어, 변경단어, 출력 경로 입력 후 변경 버튼 누르기
-			strList.add("성공적으로 출력했습니다!");
+			strList.add("변경 결과를 성공적으로 출력했습니다!");
 			list.setListData(strList);
 		} else {
 			strList.add("재입력 해주세요!");
@@ -175,9 +176,9 @@ public class Menu implements ActionListener {
 
 	public void Insert2() {
 		strList.clear(); // 그 전 내용 삭제
-		if (Editor.insertWord(tf_row.getText(), tf_col.getText(), tf_insert.getText(),tf_output.getText())) { 
+		if (Editor.insertWord(tf_row.getText(), tf_col.getText(), tf_insert.getText(), tf_output.getText())) {
 			// 행, 열, 출력 경로 입력 후 삽입 버튼 누르기
-			strList.add("성공적으로 출력했습니다!");
+			strList.add("삽입 결과를 성공적으로 출력했습니다!");
 			list.setListData(strList);
 		} else {
 			strList.add("재입력 해주세요!");
