@@ -20,10 +20,6 @@ public class Editor extends Thread {
 	public static ReportWriter reportWriter = new ReportWriter(); // 검색결과를 출력하기위한 변수 2개 선언
 	public static int word_count = 0; // 단어 개수를 세기 위한 변수
 
-	public void run() {
-
-	}
-
 	public static boolean loadFile(String path) { // 파일 열기 여부를 알리기 위해 반환형을 boolean으로 변경
 		// Scanner sc = new Scanner(System.in);
 		INPUT_PATH = path;
@@ -137,18 +133,19 @@ public class Editor extends Thread {
 		 */
 		arrangeString(); // 온전한 라인을 만든 뒤 변환 기능을 수행해야함
 		for (int i = 0; i < count; i++) {
-			//boolean isSpace=false;
-			//if(strTemp[strTemp[i].length()-1]==" ") isSpace=true;
+			// boolean isSpace=false;
+			// if(strTemp[strTemp[i].length()-1]==" ") isSpace=true;
 			String splitStrArr[] = strTemp[i].split(" "); // 한 줄을 공백 기준으로 나눔 -> 단어마다 쪼개짐
 			strTemp[i] = ""; // 변경된 값을 담기위해 초기화
 			for (int j = 0; j < splitStrArr.length; j++) {
 				if (searchWord.matches(splitStrArr[j])) {
 					splitStrArr[j] = changeWord; // 단어 바꿔줌
 				}
-				if(splitStrArr[j].matches("")) continue; // 맨앞이 공백인 경우 차후 문자열 수정에 문제가 생기므로 없애줘야 함
+				if (splitStrArr[j].matches(""))
+					continue; // 맨앞이 공백인 경우 차후 문자열 수정에 문제가 생기므로 없애줘야 함
 				strTemp[i] += (splitStrArr[j] + " "); // 다시 한줄로 합침
 			}
-			//if(!isSpace) strTemp[strTemp[i].length()-1]="";
+			// if(!isSpace) strTemp[strTemp[i].length()-1]="";
 		}
 		arrangeString_130(); // 스트링 130 사이즈로 재배치
 		if (printToFile(path)) { // 파일로 출력
@@ -190,7 +187,7 @@ public class Editor extends Thread {
 	}
 
 	public static boolean insertWord(String row, String col, String str, String path) { // 단어 삽입 메소드
-		//arrangeString();
+		// arrangeString();
 		for (int i = 0; i < count; i++) { // 개행문자가 없는 상태여야 제대로 돌아감
 			strTemp[i] = strTemp[i].replaceAll("\r\n", "");
 		}
